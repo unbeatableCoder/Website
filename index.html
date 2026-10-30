@@ -3,51 +3,121 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Meus Scripts</title>
+<title>Meus Scripts Roblox</title>
 <style>
-body{font-family:system-ui,sans-serif;max-width:800px;margin:40px auto;padding:0 16px;background:#111;color:#eee}
-h1{text-align:center}
-input{width:100%;padding:10px;margin-bottom:20px;border-radius:6px;border:1px solid #333;background:#1c1c1c;color:#eee;box-sizing:border-box}
-.card{background:#1c1c1c;border:1px solid #333;border-radius:8px;padding:16px;margin-bottom:16px}
-.card h2{margin:0 0 6px;font-size:1.2rem}
-.card p{margin:0 0 10px;color:#aaa}
-pre{background:#0b0b0b;padding:12px;border-radius:6px;overflow-x:auto;white-space:pre-wrap}
-button{background:#3b82f6;color:#fff;border:0;padding:8px 12px;border-radius:6px;cursor:pointer}
+:root{--bg:#0f1115;--card:#171a21;--borda:#262b36;--txt:#e6e6e6;--sec:#9aa3b2;--acc:#3b82f6}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--txt)}
+header{padding:32px 16px;text-align:center;border-bottom:1px solid var(--borda)}
+header h1{margin:0 0 6px}
+header p{margin:0;color:var(--sec)}
+main{max-width:860px;margin:0 auto;padding:20px 16px}
+#pesquisa{width:100%;padding:12px;border-radius:8px;border:1px solid var(--borda);background:var(--card);color:var(--txt);font-size:1rem}
+.filtros{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.filtros button{background:var(--card);color:var(--sec);border:1px solid var(--borda);padding:6px 12px;border-radius:999px;cursor:pointer}
+.filtros button.ativo{background:var(--acc);color:#fff;border-color:var(--acc)}
+.card{background:var(--card);border:1px solid var(--borda);border-radius:10px;padding:18px;margin-bottom:16px}
+.topo{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.card h2{margin:0;font-size:1.15rem}
+.tag{font-size:.75rem;background:#1f2937;color:#93c5fd;padding:3px 8px;border-radius:6px}
+.card p{color:var(--sec);margin:8px 0 12px}
+pre{background:#0a0c10;padding:14px;border-radius:8px;overflow-x:auto;margin:0 0 12px;font-size:.9rem}
+button.copiar{background:var(--acc);color:#fff;border:0;padding:8px 14px;border-radius:6px;cursor:pointer}
+button.copiar.ok{background:#16a34a}
+.vazio{text-align:center;color:var(--sec);padding:40px 0}
+footer{text-align:center;color:var(--sec);font-size:.85rem;padding:24px}
 </style>
 </head>
 <body>
-<h1>Meus Scripts</h1>
-<input id="pesquisa" placeholder="Pesquisar...">
-<div id="lista"></div>
+<header>
+  <h1>Meus Scripts Roblox</h1>
+  <p>Copia, cola no executor e joga.</p>
+</header>
+
+<main>
+  <input id="pesquisa" type="search" placeholder="Pesquisar script...">
+  <div class="filtros" id="filtros"></div>
+  <div id="lista"></div>
+</main>
+
+<footer>Feito com amor e Lua</footer>
+
 <script>
 const scripts = [
   {
-    titulo: "Exemplo: auto farm",
-    descricao: "Explicação curta do que faz.",
+    titulo: "Exemplo: Auto Farm",
+    categoria: "Farm",
+    descricao: "Explicação curta do que o script faz.",
     codigo: "print('olá')"
+  },
+  {
+    titulo: "Exemplo: Speed Boost",
+    categoria: "Movimento",
+    descricao: "Aumenta a velocidade do personagem.",
+    codigo: "game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50"
   }
 ];
 
 const lista = document.getElementById("lista");
 const pesquisa = document.getElementById("pesquisa");
+const filtrosDiv = document.getElementById("filtros");
 
-function mostrar(filtro = "") {
-  lista.innerHTML = "";
-  scripts
-    .filter(s => (s.titulo + s.descricao).toLowerCase().includes(filtro.toLowerCase()))
-    .forEach(s => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `<h2></h2><p></p><pre></pre><button>Copiar</button>`;
-      card.querySelector("h2").textContent = s.titulo;
-      card.querySelector("p").textContent = s.descricao;
-      card.querySelector("pre").textContent = s.codigo;
-      card.querySelector("button").onclick = () => navigator.clipboard.writeText(s.codigo);
-      lista.appendChild(card);
-    });
+let categoriaAtiva = "Todos";
+let termo = "";
+
+const categorias = ["Todos", ...new Set(scripts.map(s => s.categoria))];
+
+function criarFiltros() {
+  filtrosDiv.innerHTML = "";
+  categorias.forEach(cat => {
+    const b = document.createElement("button");
+    b.textContent = cat;
+    if (cat === categoriaAtiva) b.classList.add("ativo");
+    b.onclick = () => { categoriaAtiva = cat; criarFiltros(); mostrar(); };
+    filtrosDiv.appendChild(b);
+  });
 }
 
-pesquisa.addEventListener("input", e => mostrar(e.target.value));
+function mostrar() {
+  lista.innerHTML = "";
+  const t = termo.toLowerCase();
+
+  const resultados = scripts.filter(s =>
+    (categoriaAtiva === "Todos" || s.categoria === categoriaAtiva) &&
+    (s.titulo + " " + s.descricao).toLowerCase().includes(t)
+  );
+
+  if (resultados.length === 0) {
+    lista.innerHTML = `<div class="vazio">Nada encontrado.</div>`;
+    return;
+  }
+
+  resultados.forEach(s => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="topo"><h2></h2><span class="tag"></span></div>
+      <p></p>
+      <pre></pre>
+      <button class="copiar">Copiar</button>`;
+    card.querySelector("h2").textContent = s.titulo;
+    card.querySelector(".tag").textContent = s.categoria;
+    card.querySelector("p").textContent = s.descricao;
+    card.querySelector("pre").textContent = s.codigo;
+
+    const btn = card.querySelector(".copiar");
+    btn.onclick = () => {
+      navigator.clipboard.writeText(s.codigo);
+      btn.textContent = "Copiado!";
+      btn.classList.add("ok");
+      setTimeout(() => { btn.textContent = "Copiar"; btn.classList.remove("ok"); }, 1500);
+    };
+    lista.appendChild(card);
+  });
+}
+
+pesquisa.addEventListener("input", e => { termo = e.target.value; mostrar(); });
+criarFiltros();
 mostrar();
 </script>
 </body>
