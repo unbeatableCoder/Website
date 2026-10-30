@@ -3,122 +3,193 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Meus Scripts Roblox</title>
+<title>Roblox Code Quiz</title>
 <style>
-:root{--bg:#0f1115;--card:#171a21;--borda:#262b36;--txt:#e6e6e6;--sec:#9aa3b2;--acc:#3b82f6}
+:root{--bg:#0f1115;--card:#171a21;--borda:#262b36;--txt:#e6e6e6;--sec:#9aa3b2;--acc:#3b82f6;--ok:#16a34a;--erro:#dc2626}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--txt)}
-header{padding:32px 16px;text-align:center;border-bottom:1px solid var(--borda)}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+header{padding:24px 16px;text-align:center;border-bottom:1px solid var(--borda)}
 header h1{margin:0 0 6px}
 header p{margin:0;color:var(--sec)}
 main{max-width:860px;margin:0 auto;padding:20px 16px}
-#pesquisa{width:100%;padding:12px;border-radius:8px;border:1px solid var(--borda);background:var(--card);color:var(--txt);font-size:1rem}
-.filtros{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
-.filtros button{background:var(--card);color:var(--sec);border:1px solid var(--borda);padding:6px 12px;border-radius:999px;cursor:pointer}
-.filtros button.ativo{background:var(--acc);color:#fff;border-color:var(--acc)}
-.card{background:var(--card);border:1px solid var(--borda);border-radius:10px;padding:18px;margin-bottom:16px}
-.topo{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.card h2{margin:0;font-size:1.15rem}
-.tag{font-size:.75rem;background:#1f2937;color:#93c5fd;padding:3px 8px;border-radius:6px}
-.card p{color:var(--sec);margin:8px 0 12px}
-pre{background:#0a0c10;padding:14px;border-radius:8px;overflow-x:auto;margin:0 0 12px;font-size:.9rem}
-button.copiar{background:var(--acc);color:#fff;border:0;padding:8px 14px;border-radius:6px;cursor:pointer}
-button.copiar.ok{background:#16a34a}
-.vazio{text-align:center;color:var(--sec);padding:40px 0}
-footer{text-align:center;color:var(--sec);font-size:.85rem;padding:24px}
+.voltar{background:none;border:0;color:var(--acc);cursor:pointer;font-size:1rem;padding:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--borda);border-radius:12px;padding:18px;cursor:pointer;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-2px);border-color:var(--acc)}
+.card h2{margin:0 0 6px;font-size:1.1rem}
+.card p{margin:0;color:var(--sec);font-size:.9rem}
+.badge{display:inline-block;margin-top:10px;font-size:.75rem;background:#1f2937;color:#93c5fd;padding:3px 8px;border-radius:6px}
+.bloco{background:var(--card);border:1px solid var(--borda);border-radius:12px;padding:20px;margin-bottom:16px}
+.progresso{color:var(--sec);font-size:.9rem;margin-bottom:12px}
+pre{background:#0a0c10;padding:14px;border-radius:8px;overflow-x:auto;font-size:.95rem;margin:0 0 14px}
+.opcoes{display:grid;gap:10px}
+.opcoes button{text-align:left;background:#11141a;color:var(--txt);border:1px solid var(--borda);padding:12px 14px;border-radius:8px;cursor:pointer;font-size:1rem}
+.opcoes button:hover:not(:disabled){border-color:var(--acc)}
+.opcoes button.certa{background:rgba(22,163,74,.2);border-color:var(--ok)}
+.opcoes button.errada{background:rgba(220,38,38,.2);border-color:var(--erro)}
+.opcoes button:disabled{cursor:default}
+.explicacao{margin-top:14px;padding:12px;border-radius:8px;background:#11141a;color:var(--sec);font-size:.92rem;display:none}
+.proximo{margin-top:14px;background:var(--acc);color:#fff;border:0;padding:10px 16px;border-radius:8px;cursor:pointer;display:none}
+.resultado{text-align:center;padding:30px 0}
+.resultado .nota{font-size:2.5rem;margin:10px 0}
 </style>
 </head>
 <body>
 <header>
-  <h1>Meus Scripts Roblox</h1>
-  <p>Copia, cola no executor e joga.</p>
+  <h1>Roblox Code Quiz</h1>
+  <p>Treina Lua jogando</p>
 </header>
 
-<main>
-  <input id="pesquisa" type="search" placeholder="Pesquisar script...">
-  <div class="filtros" id="filtros"></div>
-  <div id="lista"></div>
-</main>
-
-<footer>Feito com amor e Lua</footer>
+<main id="app"></main>
 
 <script>
-const scripts = [
+// Jogos e quizzes. Para adicionar um jogo, copia um bloco e altera.
+const jogos = [
   {
-    titulo: "Exemplo: Auto Farm",
-    categoria: "Farm",
-    descricao: "Explicação curta do que o script faz.",
-    codigo: "print('olá')"
+    id: "obby",
+    nome: "Obby Básico",
+    descricao: "Conceitos básicos de Lua: variáveis, if e loops.",
+    quizzes: [
+      {
+        pergunta: "Qual é a forma correta de declarar uma variável local em Lua?",
+        opcoes: ["var x = 10", "local x = 10", "x := 10", "let x = 10"],
+        correta: 1,
+        explicacao: "Em Lua usa-se 'local' para variáveis locais. Sem 'local' a variável fica global."
+      },
+      {
+        pergunta: "Qual destes valores é falso em Lua?",
+        opcoes: ["0", "''", "nil", "'false'"],
+        correta: 2,
+        explicacao: "Só 'nil' e 'false' são falsos. O zero e a string vazia são considerados verdadeiros."
+      },
+      {
+        pergunta: "Como se escreve um loop que corre de 1 a 5?",
+        opcoes: ["for i = 1, 5 do ... end", "for i in 1..5 do ... end", "for (i=1;i<=5;i++)", "loop 1 to 5"],
+        correta: 0,
+        explicacao: "A sintaxe numérica é 'for variavel = inicio, fim do ... end'."
+      }
+    ]
   },
   {
-    titulo: "Exemplo: Speed Boost",
-    categoria: "Movimento",
-    descricao: "Aumenta a velocidade do personagem.",
-    codigo: "game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50"
+    id: "tycoon",
+    nome: "Tycoon Tutorial",
+    descricao: "Tabelas, funções e eventos.",
+    quizzes: [
+      {
+        pergunta: "Como se acede ao valor 'vida' de uma tabela chamada jogador?",
+        opcoes: ["jogador.vida", "jogador->vida", "jogador:vida", "jogador[vida]"],
+        correta: 0,
+        explicacao: "O ponto acede a campos com nome. jogador[\"vida\"] também funciona, mas 'vida' sem aspas seria uma variável."
+      },
+      {
+        pergunta: "Qual é o índice do primeiro elemento de uma tabela em Lua?",
+        opcoes: ["0", "1", "-1", "depende"],
+        correta: 1,
+        explicacao: "As tabelas de array começam em 1 em Lua."
+      },
+      {
+        pergunta: "Qual serviço do Roblox é usado para ouvir cliques num Part?",
+        opcoes: ["part.Touched", "part.ClickDetector.MouseClick", "part.onClick", "part:Click()"],
+        correta: 1,
+        explicacao: "O ClickDetector dispara o evento MouseClick quando o jogador clica no objeto."
+      }
+    ]
   }
 ];
 
-const lista = document.getElementById("lista");
-const pesquisa = document.getElementById("pesquisa");
-const filtrosDiv = document.getElementById("filtros");
+const app = document.getElementById("app");
+const estado = { jogo: null, indice: 0, pontos: 0 };
 
-let categoriaAtiva = "Todos";
-let termo = "";
-
-const categorias = ["Todos", ...new Set(scripts.map(s => s.categoria))];
-
-function criarFiltros() {
-  filtrosDiv.innerHTML = "";
-  categorias.forEach(cat => {
-    const b = document.createElement("button");
-    b.textContent = cat;
-    if (cat === categoriaAtiva) b.classList.add("ativo");
-    b.onclick = () => { categoriaAtiva = cat; criarFiltros(); mostrar(); };
-    filtrosDiv.appendChild(b);
+// Mostra a lista de jogos
+function mostrarJogos() {
+  estado.jogo = null;
+  app.innerHTML = `<h2>Escolhe um jogo</h2><div class="grid"></div>`;
+  const grid = app.querySelector(".grid");
+  jogos.forEach(j => {
+    const c = document.createElement("div");
+    c.className = "card";
+    c.innerHTML = `<h2></h2><p></p><span class="badge"></span>`;
+    c.querySelector("h2").textContent = j.nome;
+    c.querySelector("p").textContent = j.descricao;
+    c.querySelector(".badge").textContent = j.quizzes.length + " perguntas";
+    c.onclick = () => iniciarJogo(j);
+    grid.appendChild(c);
   });
 }
 
-function mostrar() {
-  lista.innerHTML = "";
-  const t = termo.toLowerCase();
+// Inicia o quiz de um jogo
+function iniciarJogo(jogo) {
+  estado.jogo = jogo;
+  estado.indice = 0;
+  estado.pontos = 0;
+  mostrarPergunta();
+}
 
-  const resultados = scripts.filter(s =>
-    (categoriaAtiva === "Todos" || s.categoria === categoriaAtiva) &&
-    (s.titulo + " " + s.descricao).toLowerCase().includes(t)
-  );
+// Mostra a pergunta atual
+function mostrarPergunta() {
+  const q = estado.jogo.quizzes[estado.indice];
+  app.innerHTML = `
+    <button class="voltar">← Voltar aos jogos</button>
+    <div class="bloco">
+      <div class="progresso">Pergunta ${estado.indice + 1} de ${estado.jogo.quizzes.length}</div>
+      <h2 class="pergunta"></h2>
+      <div class="opcoes"></div>
+      <div class="explicacao"></div>
+      <button class="proximo"></button>
+    </div>`;
 
-  if (resultados.length === 0) {
-    lista.innerHTML = `<div class="vazio">Nada encontrado.</div>`;
-    return;
+  app.querySelector(".voltar").onclick = mostrarJogos;
+  app.querySelector(".pergunta").textContent = q.pergunta;
+
+  const opcoesDiv = app.querySelector(".opcoes");
+  q.opcoes.forEach((texto, i) => {
+    const b = document.createElement("button");
+    b.textContent = texto;
+    b.onclick = () => responder(i);
+    opcoesDiv.appendChild(b);
+  });
+}
+
+// Verifica a resposta e mostra a explicação
+function responder(escolhida) {
+  const q = estado.jogo.quizzes[estado.indice];
+  const botoes = app.querySelectorAll(".opcoes button");
+  botoes.forEach(b => b.disabled = true);
+
+  botoes[q.correta].classList.add("certa");
+  if (escolhida !== q.correta) {
+    botoes[escolhida].classList.add("errada");
+  } else {
+    estado.pontos++;
   }
 
-  resultados.forEach(s => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <div class="topo"><h2></h2><span class="tag"></span></div>
-      <p></p>
-      <pre></pre>
-      <button class="copiar">Copiar</button>`;
-    card.querySelector("h2").textContent = s.titulo;
-    card.querySelector(".tag").textContent = s.categoria;
-    card.querySelector("p").textContent = s.descricao;
-    card.querySelector("pre").textContent = s.codigo;
+  const exp = app.querySelector(".explicacao");
+  exp.textContent = q.explicacao;
+  exp.style.display = "block";
 
-    const btn = card.querySelector(".copiar");
-    btn.onclick = () => {
-      navigator.clipboard.writeText(s.codigo);
-      btn.textContent = "Copiado!";
-      btn.classList.add("ok");
-      setTimeout(() => { btn.textContent = "Copiar"; btn.classList.remove("ok"); }, 1500);
-    };
-    lista.appendChild(card);
-  });
+  const prox = app.querySelector(".proximo");
+  const ultima = estado.indice === estado.jogo.quizzes.length - 1;
+  prox.textContent = ultima ? "Ver resultado" : "Próxima";
+  prox.style.display = "inline-block";
+  prox.onclick = () => {
+    if (ultima) mostrarResultado();
+    else { estado.indice++; mostrarPergunta(); }
+  };
 }
 
-pesquisa.addEventListener("input", e => { termo = e.target.value; mostrar(); });
-criarFiltros();
-mostrar();
+// Mostra o resultado final
+function mostrarResultado() {
+  const total = estado.jogo.quizzes.length;
+  app.innerHTML = `
+    <div class="bloco resultado">
+      <h2>Quiz terminado</h2>
+      <div class="nota">${estado.pontos} / ${total}</div>
+      <button class="proximo" style="display:inline-block">Voltar aos jogos</button>
+    </div>`;
+  app.querySelector(".proximo").onclick = mostrarJogos;
+}
+
+mostrarJogos();
 </script>
 </body>
 </html>
