@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meus Scripts</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:800px;margin:40px auto;padding:0 16px;background:#111;color:#eee}
+h1{text-align:center}
+input{width:100%;padding:10px;margin-bottom:20px;border-radius:6px;border:1px solid #333;background:#1c1c1c;color:#eee;box-sizing:border-box}
+.card{background:#1c1c1c;border:1px solid #333;border-radius:8px;padding:16px;margin-bottom:16px}
+.card h2{margin:0 0 6px;font-size:1.2rem}
+.card p{margin:0 0 10px;color:#aaa}
+pre{background:#0b0b0b;padding:12px;border-radius:6px;overflow-x:auto;white-space:pre-wrap}
+button{background:#3b82f6;color:#fff;border:0;padding:8px 12px;border-radius:6px;cursor:pointer}
+</style>
+</head>
+<body>
+<h1>Meus Scripts</h1>
+<input id="pesquisa" placeholder="Pesquisar...">
+<div id="lista"></div>
+<script>
+const scripts = [
+  {
+    titulo: "Exemplo: auto farm",
+    descricao: "Explicação curta do que faz.",
+    codigo: "print('olá')"
+  }
+];
+
+const lista = document.getElementById("lista");
+const pesquisa = document.getElementById("pesquisa");
+
+function mostrar(filtro = "") {
+  lista.innerHTML = "";
+  scripts
+    .filter(s => (s.titulo + s.descricao).toLowerCase().includes(filtro.toLowerCase()))
+    .forEach(s => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<h2></h2><p></p><pre></pre><button>Copiar</button>`;
+      card.querySelector("h2").textContent = s.titulo;
+      card.querySelector("p").textContent = s.descricao;
+      card.querySelector("pre").textContent = s.codigo;
+      card.querySelector("button").onclick = () => navigator.clipboard.writeText(s.codigo);
+      lista.appendChild(card);
+    });
+}
+
+pesquisa.addEventListener("input", e => mostrar(e.target.value));
+mostrar();
+</script>
+</body>
+</html>
